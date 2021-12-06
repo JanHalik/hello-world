@@ -1,7 +1,5 @@
 from typing_extensions import IntVar
 
-
-from typing_extensions import IntVar
 class TestClass(object):
     _val:IntVar
     def __init__(self,val=0)->None:
