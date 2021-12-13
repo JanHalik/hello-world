@@ -12,7 +12,7 @@ import sys
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from safrs import SAFRSBase, SAFRSAPI
-
+from sqlalchemy import Sequence
 db = SQLAlchemy()
 
 
@@ -23,11 +23,23 @@ class User(SAFRSBase, db.Model):
     """
 
     __tablename__ = "Users"
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, Sequence('user_id_seq'), primary_key=True)
     name = db.Column(db.String, default="")
     email = db.Column(db.String, default="")
     books = db.relationship("Book", back_populates="user", lazy="dynamic")
+    lib_id = db.Column(db.Integer, db.ForeignKey("Library.id"))
 
+
+class Library(SAFRSBase, db.Model):
+    """
+    description: Library description
+    """
+
+    __tablename__ = "Library"
+    id = db.Column(db.Integer, Sequence('lib_id_seq'),primary_key=True)
+    name = db.Column(db.String, default="")   
+    books = db.relationship("Book", back_populates="library", lazy="dynamic")
+    users = db.relationship("User", back_populates="library", lazy="dynamic")
 
 class Book(SAFRSBase, db.Model):
     """
@@ -35,10 +47,11 @@ class Book(SAFRSBase, db.Model):
     """
 
     __tablename__ = "Books"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, Sequence('book_id_seq'), primary_key=True)
     name = db.Column(db.String, default="")
-    user_id = db.Column(db.String, db.ForeignKey("Users.id"))
-    user = db.relationship("User", back_populates="books")
+    user_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
+    lib_id = db.Column(db.Integer, db.ForeignKey("Library.id"))
+
 
 
 # create the api endpoints
